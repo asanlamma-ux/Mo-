@@ -10,50 +10,40 @@ on:
 jobs:
   ios:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check iOS shell availability
-        id: probe
-        shell: bash
-        run: |
-          if ls ios/*.xcworkspace >/dev/null 2>&1 || ls ios/*.xcodeproj >/dev/null 2>&1; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Skip until iOS shell is generated
-        if: steps.probe.outputs.ready != 'true'
-        run: echo "iOS build skipped: Xcode workspace/project is not generated yet."
-
       - name: Setup Node
-        if: steps.probe.outputs.ready == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        if: steps.probe.outputs.ready == 'true'
         run: npm install --ignore-scripts
 
       - name: Install CocoaPods
-        if: steps.probe.outputs.ready == 'true'
         working-directory: ios
         run: pod install
 
       - name: Build iOS simulator target
-        if: steps.probe.outputs.ready == 'true'
         shell: bash
         run: |
           workspace="$(find ios -maxdepth 1 -name '*.xcworkspace' | head -n 1)"
-          scheme="$(basename "$workspace" .xcworkspace)"
+          scheme="MoeShell"
           xcodebuild \
             -workspace "$workspace" \
             -scheme "$scheme" \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -derivedDataPath ios/build \
             build
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-app
+          path: ios/build/Build/Products/*-iphonesimulator/*.app
+          retention-days: 14

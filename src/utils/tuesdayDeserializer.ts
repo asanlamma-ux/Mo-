@@ -1,5 +1,9 @@
 import {
+  createBuiltInVectorCatalog,
+  createDefaultBuiltInUiSkin,
+  ensureStoryDocumentShape,
   ChoiceOption,
+  ProjectAsset,
   SceneNode,
   StoryCharacter,
   StoryDocument,
@@ -41,7 +45,7 @@ export function deserializeTuesdayProject(project: TuesdayProjectJson): StoryDoc
   const now: string = new Date().toISOString()
   const sceneIdsByBlockId: Record<string, string[]> = buildSceneIdsByBlockId(project)
 
-  return {
+  return ensureStoryDocumentShape({
     meta: {
       name: readLocalizedText(project.parameters.title, language) ?? 'Untitled Project',
       version: '0.1.0',
@@ -55,13 +59,19 @@ export function deserializeTuesdayProject(project: TuesdayProjectJson): StoryDoc
         project.parameters.resolutions?.[0] ?? 640,
         project.parameters.resolutions?.[1] ?? 480,
       ],
+      orientation: readMoeOrientation(project),
       font: project.parameters.font ?? 'Arial',
       textSpeed: Number(project.parameters.text_panel.dialog_speed ?? 10),
+      builtInUi: readMoeBuiltInUi(project),
     },
     variables: deserializeVariables(project.parameters.variables),
     characters: deserializeCharacters(project.parameters.characters, language),
     scenes: deserializeScenes(project, language, sceneIdsByBlockId),
-  }
+    assets: readMoeAssets(project),
+    volumes: [],
+    chapters: [],
+    builtInAssets: createBuiltInVectorCatalog(readMoeBuiltInUi(project)),
+  })
 }
 
 function buildSceneIdsByBlockId(project: TuesdayProjectJson): Record<string, string[]> {
@@ -432,4 +442,101 @@ function readLocalizedPath(
   }
 
   return value[language] ?? value[DEFAULT_LANGUAGE] ?? Object.values(value)[0]
+}
+
+function readMoeOrientation(project: TuesdayProjectJson): 'portrait' | 'landscape' | 'adaptive' {
+  const moeConfig: unknown = project.parameters.moe
+
+  if (!moeConfig || typeof moeConfig !== 'object') {
+    return 'portrait'
+  }
+
+  const orientation: unknown = (moeConfig as {orientation?: unknown}).orientation
+
+  if (orientation === 'portrait' || orientation === 'landscape' || orientation === 'adaptive') {
+    return orientation
+  }
+
+  return 'portrait'
+}
+
+function readMoeBuiltInUi(project: TuesdayProjectJson) {
+  const defaults = createDefaultBuiltInUiSkin()
+  const moeConfig: unknown = project.parameters.moe
+
+  if (!moeConfig || typeof moeConfig !== 'object') {
+    return defaults
+  }
+
+  const builtInUi: unknown = (moeConfig as {builtInUi?: unknown}).builtInUi
+
+  if (!builtInUi || typeof builtInUi !== 'object') {
+    return defaults
+  }
+
+  const candidate = builtInUi as Partial<typeof defaults>
+
+  return {
+    chatPadding:
+      typeof candidate.chatPadding === 'number' ? candidate.chatPadding : defaults.chatPadding,
+    choiceStyle:
+      candidate.choiceStyle === 'pill' ||
+      candidate.choiceStyle === 'card' ||
+      candidate.choiceStyle === 'glass'
+        ? candidate.choiceStyle
+        : defaults.choiceStyle,
+    settingsStyle:
+      candidate.settingsStyle === 'sheet' || candidate.settingsStyle === 'sidebar'
+        ? candidate.settingsStyle
+        : defaults.settingsStyle,
+    safeAreaEnabled:
+      typeof candidate.safeAreaEnabled === 'boolean'
+        ? candidate.safeAreaEnabled
+        : defaults.safeAreaEnabled,
+    motionPreset:
+      candidate.motionPreset === 'standard' || candidate.motionPreset === 'reduced'
+        ? candidate.motionPreset
+        : defaults.motionPreset,
+    chatFrameStyle:
+      candidate.chatFrameStyle === 'petal' ||
+      candidate.chatFrameStyle === 'paper' ||
+      candidate.chatFrameStyle === 'glass'
+        ? candidate.chatFrameStyle
+        : defaults.chatFrameStyle,
+  }
+}
+
+function readMoeAssets(project: TuesdayProjectJson): ProjectAsset[] {
+  const moeConfig: unknown = project.parameters.moe
+
+  if (!moeConfig || typeof moeConfig !== 'object') {
+    return []
+  }
+
+  const assets: unknown = (moeConfig as {assets?: unknown}).assets
+
+  if (!Array.isArray(assets)) {
+    return []
+  }
+
+  return assets
+    .filter((asset): asset is ProjectAsset => {
+      if (!asset || typeof asset !== 'object') {
+        return false
+      }
+
+      const candidate = asset as Partial<ProjectAsset>
+
+      return (
+        typeof candidate.id === 'string' &&
+        typeof candidate.name === 'string' &&
+        typeof candidate.category === 'string' &&
+        typeof candidate.path === 'string' &&
+        typeof candidate.importedAt === 'string'
+      )
+    })
+    .map(asset => ({
+      ...asset,
+      sizeBytes: typeof asset.sizeBytes === 'number' ? asset.sizeBytes : 0,
+    }))
 }

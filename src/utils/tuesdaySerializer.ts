@@ -1,4 +1,5 @@
 import {
+  BuiltInUiSkin,
   ChoiceOption,
   SceneNode,
   StoryDocument,
@@ -16,6 +17,14 @@ import {
 } from '@/types/TuesdayProjectJson'
 
 const DEFAULT_BACKGROUND_COLOR = '#11141c'
+const DEFAULT_MOE_SKIN: BuiltInUiSkin = {
+  chatPadding: 20,
+  choiceStyle: 'pill',
+  settingsStyle: 'sheet',
+  safeAreaEnabled: true,
+  motionPreset: 'standard',
+  chatFrameStyle: 'petal',
+}
 
 export function serializeStoryDocument(document: StoryDocument): TuesdayProjectJson {
   const blocks: TuesdayProjectJson['blocks'] = {}
@@ -93,6 +102,30 @@ export function serializeStoryDocument(document: StoryDocument): TuesdayProjectJ
         DEFAULT_BACKGROUND_COLOR,
         '',
       ],
+      moe: {
+        orientation: document.parameters.orientation,
+        builtInUi: document.parameters.builtInUi ?? DEFAULT_MOE_SKIN,
+        assets: document.assets.map(asset => ({
+          id: asset.id,
+          name: asset.name,
+          category: asset.category,
+          path: asset.path,
+          sizeBytes: asset.sizeBytes,
+          importedAt: asset.importedAt,
+        })),
+        volumes: document.volumes.map(volume => ({
+          id: volume.id,
+          name: volume.name,
+          chapterIds: volume.chapterIds,
+        })),
+        chapters: document.chapters.map(chapter => ({
+          id: chapter.id,
+          volumeId: chapter.volumeId,
+          name: chapter.name,
+          sceneIds: chapter.sceneIds,
+          coverage: chapter.tuesdayCoverage,
+        })),
+      },
     },
     blocks,
     ...blockEntries,

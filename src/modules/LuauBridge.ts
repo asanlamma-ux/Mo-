@@ -11,15 +11,15 @@ export interface Completion {
   detail: string
 }
 
+interface LuauBridgeApi {
+  validate: (source: string) => {ok: boolean; errors: LuauError[]}
+  compile: (source: string) => {ok: boolean; json: string; errors: LuauError[]}
+  format: (source: string) => string
+  completions: (source: string, cursorPos: number) => Completion[]
+}
+
 declare global {
-  var luau:
-    | {
-        validate: (source: string) => {ok: boolean; errors: LuauError[]}
-        compile: (source: string) => {ok: boolean; json: string; errors: LuauError[]}
-        format: (source: string) => string
-        completions: (source: string, cursorPos: number) => Completion[]
-      }
-    | undefined
+  var luau: LuauBridgeApi | undefined
 }
 
 const fallbackBridge = {
@@ -29,7 +29,8 @@ const fallbackBridge = {
   completions: () => [] as Completion[],
 }
 
-const LuauBridge = global.luau ?? fallbackBridge
+const runtimeGlobal: typeof globalThis & {luau?: LuauBridgeApi} = globalThis
+
+const LuauBridge: LuauBridgeApi = runtimeGlobal.luau ?? fallbackBridge
 
 export default LuauBridge
-

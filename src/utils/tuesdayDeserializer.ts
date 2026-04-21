@@ -22,6 +22,19 @@ import {
 
 const DEFAULT_LANGUAGE = 'en'
 
+function readBlockScenes(
+  project: TuesdayProjectJson,
+  blockId: string,
+): TuesdayScene[] {
+  const blockValue: TuesdayProjectJson[string] = project[blockId]
+
+  if (!Array.isArray(blockValue)) {
+    return []
+  }
+
+  return blockValue.filter(isTuesdayScene)
+}
+
 export function deserializeTuesdayProject(project: TuesdayProjectJson): StoryDocument {
   const language: string = project.parameters.languares[0] ?? DEFAULT_LANGUAGE
   const now: string = new Date().toISOString()
@@ -54,7 +67,7 @@ function buildSceneIdsByBlockId(project: TuesdayProjectJson): Record<string, str
   const sceneIdsByBlockId: Record<string, string[]> = {}
 
   Object.keys(project.blocks).forEach(blockId => {
-    const blockScenes: TuesdayScene[] = Array.isArray(project[blockId]) ? ((project[blockId] as TuesdayScene[]) ?? []) : []
+    const blockScenes: TuesdayScene[] = readBlockScenes(project, blockId)
     sceneIdsByBlockId[blockId] = blockScenes.map((_, sceneIndex) => {
       return sceneIndex === 0 ? blockId : `${blockId}__scene_${sceneIndex + 1}`
     })
@@ -114,7 +127,7 @@ function deserializeScenes(
   const scenes: StoryScene[] = []
 
   Object.entries(project.blocks).forEach(([blockId, placement]) => {
-    const blockScenes: TuesdayScene[] = Array.isArray(project[blockId]) ? ((project[blockId] as TuesdayScene[]) ?? []) : []
+    const blockScenes: TuesdayScene[] = readBlockScenes(project, blockId)
 
     blockScenes.forEach((scene, sceneIndex) => {
       const sceneId: string = sceneIdsByBlockId[blockId]?.[sceneIndex] ?? blockId
@@ -135,6 +148,10 @@ function deserializeScenes(
   })
 
   return scenes
+}
+
+function isTuesdayScene(value: TuesdayProjectJson[string]): value is TuesdayScene {
+  return Boolean(value && typeof value === 'object' && 'dialogs' in value)
 }
 
 function deserializeDialogs(

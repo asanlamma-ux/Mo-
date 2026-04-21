@@ -1,6 +1,6 @@
 name: Android
 
-  on:
+  "on":
     push:
       branches:
         - main

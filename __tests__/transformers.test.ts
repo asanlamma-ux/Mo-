@@ -1,6 +1,6 @@
 import {deserializeTuesdayProject} from '@/utils/tuesdayDeserializer'
 import {serializeStoryDocument} from '@/utils/tuesdaySerializer'
-import {TuesdayProjectJson, TuesdayScene} from '@/types/TuesdayProjectJson'
+import {TuesdayBlockScene, TuesdayProjectJson, TuesdayScene} from '@/types/TuesdayProjectJson'
 
 const fixture: TuesdayProjectJson = require('./fixtures/minimal-dialogue.json')
 const multiSceneFixture: TuesdayProjectJson = require('./fixtures/multi-scene-block.json')
@@ -16,7 +16,8 @@ function readBlockScenes(
   }
 
   return blockValue.filter(
-    (value): value is TuesdayScene => Boolean(value && typeof value === 'object' && 'dialogs' in value),
+    (value: TuesdayBlockScene[number] | string): value is TuesdayScene =>
+      Boolean(value && typeof value === 'object' && 'dialogs' in value),
   )
 }
 

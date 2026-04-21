@@ -8,6 +8,7 @@ import {
 } from '@/types/StoryDocument'
 import {
   TuesdayBlockPlacement,
+  TuesdayBlockScene,
   TuesdayChoice,
   TuesdayCharacterDefinition,
   TuesdayDialog,
@@ -32,7 +33,7 @@ function readBlockScenes(
     return []
   }
 
-  return blockValue.filter(isTuesdayScene)
+  return blockValue.filter((value): value is TuesdayScene => isTuesdayScene(value))
 }
 
 export function deserializeTuesdayProject(project: TuesdayProjectJson): StoryDocument {
@@ -150,7 +151,9 @@ function deserializeScenes(
   return scenes
 }
 
-function isTuesdayScene(value: TuesdayProjectJson[string]): value is TuesdayScene {
+function isTuesdayScene(
+  value: TuesdayBlockScene[number] | string,
+): value is TuesdayScene {
   return Boolean(value && typeof value === 'object' && 'dialogs' in value)
 }
 

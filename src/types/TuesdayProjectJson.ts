@@ -8,7 +8,7 @@ export interface TuesdayProjectJson
 export type TuesdayTopLevelValue =
   | TuesdayParameters
   | TuesdayBlocksMap
-  | TuesdayBlockScene[]
+  | TuesdayBlockScene
   | string[]
 
 export interface TuesdayParameters {

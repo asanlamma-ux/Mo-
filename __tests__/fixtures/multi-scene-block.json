@@ -1,0 +1,59 @@
+{
+  "parameters": {
+    "text_panel": {
+      "size": ["95%", "25%"],
+      "color": "#efefff",
+      "color_text": "#000000",
+      "indent_text": "8px",
+      "indent_bottom": "32px",
+      "size_text": "20px",
+      "dialog_speed": "10",
+      "position": ["0", "0", "0"],
+      "font_family": "Arial"
+    },
+    "title": "Two Scene Block",
+    "launch_story": "chapter_1",
+    "key": {},
+    "languares": ["en"],
+    "buttons": [],
+    "autosave": false,
+    "font": "Arial",
+    "font_size": "18px",
+    "variables": {},
+    "sounds": {},
+    "characters": {},
+    "plugins": [],
+    "icon": "",
+    "font_files": {},
+    "resolutions": [640, 480, "#000000", ""]
+  },
+  "blocks": {
+    "chapter_1": ["300px", "120px", "block", false]
+  },
+  "chapter_1": [
+    {
+      "dialogs": [
+        {
+          "text": "Scene one line"
+        },
+        {
+          "go_to": "tue_go"
+        }
+      ],
+      "background_image": {
+        "en": "backgrounds/scene-one.png"
+      }
+    },
+    {
+      "dialogs": [
+        {
+          "text": "Scene two line"
+        }
+      ],
+      "background_image": {
+        "en": "backgrounds/scene-two.png"
+      }
+    }
+  ]
+}
+

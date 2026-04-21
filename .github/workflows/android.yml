@@ -1,0 +1,58 @@
+name: Android
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Android shell availability
+        id: probe
+        shell: bash
+        run: |
+          if [ -f android/gradlew ] && [ -f android/settings.gradle ] && [ -f android/app/build.gradle ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip until Android shell is generated
+        if: steps.probe.outputs.ready != 'true'
+        run: echo "Android build skipped: Gradle Android shell is not generated yet."
+
+      - name: Setup Node
+        if: steps.probe.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java
+        if: steps.probe.outputs.ready == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        if: steps.probe.outputs.ready == 'true'
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        if: steps.probe.outputs.ready == 'true'
+        run: npm install --ignore-scripts
+
+      - name: Build debug APK
+        if: steps.probe.outputs.ready == 'true'
+        working-directory: android
+        run: ./gradlew assembleDebug
+

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html><head>
+<title>Decode and Encode file to base64 converter</title>
+<style>
+*{font-family:Arial;font-size:12px;border-collapse:collapse;border:none;margin:0;padding:0;border-spacing:0px;outline:none;}
+.icon_load{background-image:url("data:image/svg+xml,%3csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M20 9.5L16.5 18.5H2L5.5 9.5H20Z M17.5 9V5.5H9.5L7.5 3.5H3.5L1.5 5.5V19' stroke='black' vector-effect='non-scaling-stroke'/%3e%3c/svg%3e")}
+.icon_copy{background-image:url("data:image/svg+xml,%3csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cg stroke='black' vector-effect='non-scaling-stroke'%3e%3cpath d='M5.5 11V4.5C5.5 3.5 6.5 2.5 7.5 2.5H8.5M12 17.5H15.5C16.5 17.5 17.5 16.5 17.5 15.5V4.5C17.5 3.5 16.5 2.5 15.5 2.5H14.5'/%3e%3cpath d='M3.5 19.5L7.5 15.5M9.5 17.5V13.5H5.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3crect x='8.5' y='1.5' width='6' height='2' rx='1' stroke='black'/%3e%3c/g%3e%3c/svg%3e")}
+.icon_save{background-image:url("data:image/svg+xml,%3csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M19.5 19.5V6L16 2.5H2.5V19.5H19.5Z' stroke='black' stroke-linejoin='round'/%3e%3crect x='7.5' y='2.5' width='7' height='5' rx='0.5' stroke='black'/%3e%3crect x='5.5' y='10.5' width='11' height='9' rx='0.5' stroke='black'/%3e%3c/svg%3e")}
+.icon_clear{background-image:url("data:image/svg+xml,%3csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M8.5 19.5H4.5L1.5 16.5V12.5L11.5 2.5L18.5 9.5L8.5 19.5Z' stroke='black' stroke-linejoin='round' vector-effect='non-scaling-stroke'/%3e%3cpath d='M4 11L10 17M19 19.5H21M12 19.5H16' stroke='black' stroke-linecap='round' stroke-linejoin='round' vector-effect='non-scaling-stroke'/%3e%3c/svg%3e")}
+.icon{background-size:22px 22px;background-repeat:no-repeat;background-position:center;height:40px;width:40px;}
+textarea{resize:none;width:100%;height:calc(100vh - 2px);background-color:#efefff;border-top:1px solid #cec8e3;padding:8px;box-sizing:border-box;}
+.input_text{
+	border:0;
+	font-family:Arial;
+	font-size:12px;
+	-webkit-appearance:none;
+	border-bottom:1px solid #cec8e3;
+	background-color:transparent;
+	cursor:text;
+	height:28px;
+	width:100%;
+	-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;
+}
+button{border-radius:8px;background-color:#efefff;cursor:pointer;margin:8px 0 8px 8px;}
+button:hover{background-color:#cec8e3;}
+</style>
+</head><body>
+<input id="file" type="file" style="display:none;position:fixed;"/>
+<a id="dwonload" style="display:none;position:fixed;"></a>
+<table style="width:100vw;" border="0">
+<tbody>
+<tr>
+<td style="width:210px;" valign="top">
+    <button type="button" onclick='file.click();' class='icon icon_load' title='Load file' >&nbsp;</button>
+    <button type="button" onclick='dwonload();' class='icon icon_save' title='Save file' >&nbsp;</button>
+    <button type="button" onclick='text.select();document.execCommand("copy");' class='icon icon_copy' title='copy base64' >&nbsp;</button>
+    <button type="button" onclick='text.value=""' class='icon icon_clear' title='clear' >&nbsp;</button>
+    <table width="100%" style="margin-top:8px;">
+    <tbody><tr>
+        <td align="right" style="padding-right:8px;" height="40px">Name file</td>
+        <td><input id="name_file" class="input_text" onchange="proportion(false);" type="text" style="width:100%;" value="decoder_file"></td>
+    </tr><tr>
+        <td align="right" height="40px" style="width:80px;padding-right:8px;">File size</td>
+        <td id="size_file"></td>
+    </tr><tr>
+        <td align="right" style="padding-right:8px;" height="40px">Base64 size</td>
+        <td id="size_base"></td>
+    </tr><tr>
+        <td valign="center" align="center" height="210px" colspan="2"><div id="preview" style="cursor:pointer;width:90%;height:90%;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#efefff;border-radius:8px;"></div></td>
+    </tr>
+    </tbody>
+    </table>
+</td>
+<td valign="top"><textarea id="text" oninput="dataBase64(this.value);size_file.innerHTML=fileSize((this.value.length*(3/4))-22)"></textarea></td>
+</tr>
+</tbody>
+</table>
+<script>
+var files=document.getElementById('file')
+file.addEventListener('change',function(){getBase64(files.files[0])});
+function getBase64(file) {
+    var reader=new FileReader();
+    name_file.value=file.name
+    size_file.innerHTML=fileSize(file.size)
+    if(file.type.includes("svg")){
+        reader.readAsText(file);
+        reader.onload = function() {
+            text.value="data:image/svg+xml,"+reader.result.replace(/\r?\n/g, "").replaceAll("<","%3c").replaceAll(">","%3e").replaceAll("#","%23").replaceAll("  "," ").replaceAll("\"","'");
+            dataBase64(text.value)
+        };
+    } else {
+        reader.readAsDataURL(file);
+        reader.onload=function(){
+            text.value=reader.result;
+            dataBase64(reader.result)
+        };
+    }
+    reader.onerror=function(error){alert('Error: '+error);};
+}
+function dataBase64(d){
+    size_base.innerHTML=fileSize(encodeURI(d).split(/%..|./).length-1)
+    preview.style.backgroundImage="url(\""+d+"\")"
+    preview.setAttribute("onclick","window.open(text.value)")
+}
+function fileSize(b){
+      if(b>=1000000000){b=(b/1000000000).toFixed(2)+' GB';}
+      else if(b>=1000000){b=(b/1000000).toFixed(2)+' MB';}
+      else if(b>=1000){b=(b/1000).toFixed(2)+' KB';}
+      else if(b>=1){b=b+' bytes';}
+      else {b='0 byte';}
+      return b;
+}
+function dwonload(){
+    var a=document.getElementById('dwonload');
+    a.setAttribute("href",document.getElementById('text').value);
+    a.setAttribute("download",name_file.value);
+    a.click();
+}
+var drop = {
+    init:function(){
+        if (window.File&&window.FileReader&&window.FileList&&window.Blob) {
+            window.addEventListener("dragover",function(e){
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            window.addEventListener("drop",function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                getBase64(e.dataTransfer.files[0])
+            });
+        }
+    },
+};
+window.addEventListener("DOMContentLoaded", drop.init);
+</script>
+</body></html>
+

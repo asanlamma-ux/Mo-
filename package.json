@@ -1,0 +1,40 @@
+{
+  "name": "moe-vn-maker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-platform visual novel creation studio targeting Tuesday.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "node -e \"console.log('lint placeholder: add ESLint config in next iteration')\"",
+    "verify:repo": "node -e \"const fs=require('fs'); const required=['src/App.tsx','src/types/TuesdayProjectJson.ts','src/utils/tuesdaySerializer.ts','src/utils/tuesdayDeserializer.ts','cpp/luau_bridge.cpp']; const missing=required.filter(p=>!fs.existsSync(p)); if(missing.length){console.error('Missing required files:\\n'+missing.join('\\n')); process.exit(1)} console.log('Repository structure verified')\"",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
+    "react": "^18.2.0",
+    "react-native": "^0.74.5",
+    "react-native-gesture-handler": "^2.17.1",
+    "react-native-mmkv": "^2.12.2",
+    "react-native-reanimated": "^3.10.1",
+    "react-native-safe-area-context": "^4.10.9",
+    "react-native-screens": "^3.34.0",
+    "react-native-webview": "^13.10.4",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/runtime": "^7.25.0",
+    "@react-native/babel-preset": "^0.74.87",
+    "@react-native/metro-config": "^0.74.87",
+    "@react-native/typescript-config": "^0.74.87",
+    "@types/jest": "^29.5.12",
+    "@types/react": "^18.2.66",
+    "jest": "^29.7.0",
+    "typescript": "^5.6.2"
+  }
+}

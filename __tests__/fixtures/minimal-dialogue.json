@@ -1,0 +1,65 @@
+{
+  "parameters": {
+    "text_panel": {
+      "size": ["95%", "25%"],
+      "color": "#efefff",
+      "color_text": "#000000",
+      "indent_text": "8px",
+      "indent_bottom": "32px",
+      "size_text": "20px",
+      "dialog_speed": "10",
+      "position": ["0", "0", "0"],
+      "font_family": "Arial"
+    },
+    "title": "Fixture Novel",
+    "launch_story": "intro",
+    "key": {},
+    "languares": ["en"],
+    "buttons": [],
+    "autosave": false,
+    "font": "Arial",
+    "font_size": "18px",
+    "variables": {
+      "score": 1
+    },
+    "characters": {
+      "hero": {
+        "en": "Hero",
+        "color": "#ffffff",
+        "art": {
+          "en": "characters/hero.png"
+        }
+      }
+    },
+    "sounds": {},
+    "plugins": [],
+    "icon": "",
+    "font_files": {},
+    "resolutions": [640, 480, "#000000", ""]
+  },
+  "blocks": {
+    "intro": ["100px", "200px", "block", false]
+  },
+  "intro": [
+    {
+      "dialogs": [
+        {
+          "text": "Hello there",
+          "name": "hero"
+        },
+        {
+          "variables": [["score", "add", 2]]
+        },
+        {
+          "go_to": "ending"
+        }
+      ],
+      "background_color": "#000000",
+      "background_image": {
+        "en": "backgrounds/start.png"
+      },
+      "background_music": "music/theme.mp3"
+    }
+  ]
+}
+

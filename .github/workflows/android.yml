@@ -1,45 +1,44 @@
 name: Android
 
-  "on":
-    push:
-      branches:
-        - main
-        - master
-    pull_request:
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
 
-  jobs:
-    android:
-      runs-on: ubuntu-latest
-      timeout-minutes: 60
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v5
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
-        - name: Setup Node
-          uses: actions/setup-node@v5
-          with:
-            node-version: '20'
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
 
-        - name: Setup Java
-          uses: actions/setup-java@v4
-          with:
-            distribution: temurin
-            java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-        - name: Setup Android SDK
-          uses: android-actions/setup-android@v3
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-        - name: Install dependencies
-          run: npm install --ignore-scripts
+      - name: Install dependencies
+        run: npm install --ignore-scripts
 
-        - name: Bundle JS & Build release APK
-          working-directory: android
-          run: ./gradlew assembleRelease
+      - name: Bundle JS and Build release APK
+        working-directory: android
+        run: ./gradlew assembleRelease
 
-        - name: Upload release APK
-          uses: actions/upload-artifact@v4
-          with:
-            name: android-release-apk
-            path: android/app/build/outputs/apk/release/*.apk
-            retention-days: 30
-  
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
